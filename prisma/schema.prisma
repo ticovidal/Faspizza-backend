@@ -1,13 +1,77 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  client
+  admin
+  delivery
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  preparing
+  out_for_delivery
+  delivered
+  canceled
+}
+
+model User {
+  id              String          @id @default(uuid())
+  name            String
+  email           String          @unique
+  passwordHash    String
+  role            Role            @default(client)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  orders          Order[]         @relation("CustomerOrders")
+  deliveredOrders Order[]         @relation("DeliveryOrders")
+  statusChanges   StatusHistory[]
+
+  @@map("users")
+}
+
+model Order {
+  id               String          @id @default(uuid())
+  title            String
+  description      String?
+  address          String
+  status           OrderStatus     @default(pending)
+
+  userId           String
+  user             User            @relation("CustomerOrders", fields: [userId], references: [id])
+
+  deliveryPersonId String?
+  deliveryPerson   User?           @relation("DeliveryOrders", fields: [deliveryPersonId], references: [id])
+
+  deliveredAt      DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  history          StatusHistory[]
+
+  @@map("orders")
+}
+
+model StatusHistory {
+  id              String       @id @default(uuid())
+  orderId         String
+  order           Order        @relation(fields: [orderId], references: [id])
+
+  oldStatus       OrderStatus?
+  newStatus       OrderStatus
+  note            String?
+
+  changedByUserId String
+  changedByUser   User         @relation(fields: [changedByUserId], references: [id])
+
+  createdAt       DateTime     @default(now())
+
+  @@map("status_history")
 }
