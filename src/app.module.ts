@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { OrdersModule } from './orders/orders.module';
-import { RolesGuard } from './common/guards/roles.guard';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -18,14 +17,9 @@ import { RolesGuard } from './common/guards/roles.guard';
     AuthModule,
     UsersModule,
     OrdersModule,
+    AdminModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
