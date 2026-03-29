@@ -16,4 +16,11 @@ export class OrdersService {
       },
     });
   }
+
+  findAllByUser(userId: string) {
+    return this.prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }
