@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -22,5 +22,21 @@ export class OrdersService {
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async findOneById(userId: string, orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Pedido não encontrado');
+    }
+
+    if (order.userId !== userId) {
+      throw new ForbiddenException('Você não pode acessar este pedido');
+    }
+
+    return order;
   }
 }
