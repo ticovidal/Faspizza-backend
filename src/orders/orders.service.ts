@@ -101,4 +101,34 @@ export class OrdersService {
       where: { id: orderId },
     });
   }
+  async findHistory(userId: string, orderId: string, userRole: string) {
+    const order = await this.prisma.order.findUnique({
+        where: { id: orderId },
+    });
+
+    if (!order) {
+        throw new NotFoundException('Pedido não encontrado');
+    }
+
+    if (userRole !== 'admin' && order.userId !== userId) {
+        throw new ForbiddenException(
+        'Você não pode acessar o histórico deste pedido',
+        );
+    }
+
+    return this.prisma.statusHistory.findMany({
+        where: { orderId },
+        orderBy: { createdAt: 'asc' },
+        include: {
+        changedByUser: {
+            select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            },
+        },
+        },
+    });
+  }
 }

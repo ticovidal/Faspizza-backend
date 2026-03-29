@@ -23,7 +23,15 @@ export class OrdersController {
   create(@Req() req: any, @Body() dto: CreateOrderDto) {
     return this.ordersService.create(req.user.userId, dto);
   }
-
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/history')
+  findHistory(@Req() req: any, @Param('id') id: string) {
+    return this.ordersService.findHistory(
+        req.user.userId,
+        id,
+        req.user.role,
+    );
+  }
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Req() req: any) {
