@@ -1,4 +1,5 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ChangeStatusDto {
   @IsEnum([
@@ -9,6 +10,10 @@ export class ChangeStatusDto {
     'delivered',
     'canceled',
   ])
+  @ApiProperty({
+  example: 'confirmed',
+  enum: ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'canceled'],
+})
   status:
     | 'pending'
     | 'confirmed'
@@ -19,5 +24,6 @@ export class ChangeStatusDto {
 
   @IsOptional()
   @IsString()
+  @ApiPropertyOptional({ example: 'Pedido confirmado pela cozinha' })
   note?: string;
 }
